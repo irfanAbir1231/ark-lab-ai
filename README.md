@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ArkLab AI Agent Catalog
 
-## Getting Started
+## Project Overview
 
-First, run the development server:
+A take-home challenge for the Frontend Developer Intern role at ArkLab AI. The objective is to build a responsive, SEO-friendly webpage that displays a catalog of AI agents using Next.js and TypeScript, leveraging Server-Side Rendering (SSR).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Live Demo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+[View the deployed app on Vercel](https://ark-lab-ai.vercel.app/)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+---
 
-## Learn More
+## Core Features
 
-To learn more about Next.js, take a look at the following resources:
+### 🗂️ AI Agent Listing Page
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Responsive grid/list display of AI agents
+- Each agent card shows:
+  - **Name**
+  - **Short Description**
+  - **Status**
+  - **Category**
+  - **Pricing Model**
+- Built using [Shadcn UI](https://ui.shadcn.com/) components
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### ⚡ Server-Side Rendering (SSR)
 
-## Deploy on Vercel
+- Initial agent data fetched on the server via a React Server Component
+- Data loaded from a `mock-agents.json` file using Next.js App Router conventions
+- Initial HTML is pre-rendered on the server for fast load and SEO
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 🔍 Client-Side Filtering & Search
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Search bar to filter agents by name or description (case-insensitive)
+- Multi-select filters for **Status** and **Category**
+- Single-select filter for **Pricing Model**
+- 'Clear All Filters' button to reset filters
+
+### 💎 User Experience (UX) & SEO
+
+- Fully responsive: works on desktop, tablet, and mobile
+- At least one subtle animation using [Framer Motion](https://www.framer.com/motion/)
+- Dynamic `<title>` and `<meta name="description">` for SEO
+
+---
+
+## 🛠️ Tech Stack
+
+- [Next.js](https://nextjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Redux](https://redux.js.org/)
+- [Shadcn UI](https://ui.shadcn.com/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [Git & GitHub](https://github.com/)
+
+---
+
+## 🏁 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18+ recommended)
+- npm or yarn
+
+### Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repo-url>
+   cd ark-lab
+   ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+3. **Set up environment variables:**
+   - Copy `.env.local.example` to `.env.local` and fill in any required values.
+   ```bash
+   cp .env.local.example .env.local
+   ```
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 🧠 Key Design Decisions & Challenges
+
+### State Management
+
+- **Redux Toolkit** is used for global state management, handling agent data, filters, and authentication state. Redux provides predictable state updates and easy debugging, especially as the app scales.
+- The Redux store is set up in `lib/store.ts` and slices are organized in `store/slices/` for modularity.
+
+### Component Structure
+
+- The app uses a modular, reusable component structure. UI elements (buttons, cards, filters) are in `components/ui/` and feature-specific components (agent card, filters, search) are in `components/`.
+- The main page (`app/page.tsx`) is a React Server Component that fetches agent data server-side for SSR and passes it to client components for interactivity.
+- Layout and session management are handled in `app/layout.tsx` and `components/SessionProviderWrapper.tsx`.
+
+### Data Fetching & SSR
+
+- Agent data is loaded from a local `mock-agents.json` file using Next.js server components, ensuring fast initial load and SEO benefits.
+- Client-side filtering/search is performed on the pre-fetched data, providing a responsive UX without extra API calls.
+
+### UI & Animation
+
+- [Shadcn UI](https://ui.shadcn.com/) is used for consistent, accessible UI components.
+- [Framer Motion](https://www.framer.com/motion/) adds subtle animations (e.g., agent card hover effects) to enhance UX.
+
+### Authentication
+
+- Google OAuth 2.0 login is implemented with [`next-auth`](https://next-auth.js.org/), with session state synced to Redux for global access.
+- Environment variables for OAuth are managed securely via `.env.local`.
+
+### Challenges & Solutions
+
+- **SSR with Client-Side Interactivity:** Balancing server-side data fetching with client-side filtering required careful separation of server and client components.
+- **State Sync:** Ensuring Redux state stays in sync with NextAuth session required custom hooks and middleware.
+- **UI Consistency:** Integrating Shadcn UI with custom styles and Tailwind required some overrides for a cohesive look.
+
+---
+
+## 🔐 Advanced Challenge: Google OAuth 2.0 Login
+
+- Implemented using [`next-auth`](https://next-auth.js.org/)
+- Session state managed with Redux
+- Challenges faced and solutions
+- `.env.local.example` includes placeholders for Google Client ID and Secret
+
+---
+
+## License
+
+[MIT or your preferred license]
