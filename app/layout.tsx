@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import SessionProviderWrapper from "../components/SessionProviderWrapper";
 import { StoreProvider } from "../store/provider";
-import { Header } from "../components/header";
+import { CatalogHeader } from "@/components/catalog-header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -43,7 +43,6 @@ export default function RootLayout({
         <SessionProviderWrapper>
           <StoreProvider>
             <div className="min-h-screen bg-gray-50">
-              <Header />
               <main>{children}</main>
             </div>
           </StoreProvider>

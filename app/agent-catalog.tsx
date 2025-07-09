@@ -1,97 +1,165 @@
-'use client';
+// app/catalog/components/agent-catalog.tsx
+"use client";
 
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { motion } from 'framer-motion';
-import { Agent } from '../types/agent';
-import { setAgents } from '../store/slices/agentSlice';
-import { RootState } from '../store/provider';
-import { AgentCard } from '../components/agent-card';
-import { AgentSearch } from '../components/agent-search';
-import { AgentFilters } from '../components/agent-filters';
+import { useState, useMemo } from "react";
+import { Agents } from "../types/agent";
+import { AgentCard } from "../components/agent-card";
+import { AgentFilters } from "../components/agent-filters";
+import { AgentSearch } from "../components/agent-search";
+import { AgentSort } from "../components/agent-sort";
+import { EmptyState } from "../components/empty-state";
+import { FilterTabs } from "../components/filter-tabs";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AgentCatalogProps {
-  initialAgents: Agent[];
+  initialAgents: Agents[];
 }
 
 export function AgentCatalog({ initialAgents }: AgentCatalogProps) {
-  const dispatch = useDispatch();
-  const { filteredAgents, isLoading, filters } = useSelector((state: RootState) => state.agents);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedPricing, setSelectedPricing] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("name");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [activeTab, setActiveTab] = useState<string>("all");
 
-  useEffect(() => {
-    dispatch(setAgents(initialAgents));
-  }, [initialAgents, dispatch]);
+  const filteredAndSortedAgents = useMemo(() => {
+    let filtered = initialAgents;
 
-  const hasActiveFilters = filters.statuses.length > 0 || 
-                          filters.categories.length > 0 || 
-                          filters.pricingModel !== '' ||
-                          filters.search !== '';
+    // Tab filtering
+    if (activeTab !== "all") {
+      filtered = filtered.filter(
+        (agent) => agent.status.toLowerCase() === activeTab.toLowerCase()
+      );
+    }
+
+    // Search filtering
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (agent) =>
+          agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          agent.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          agent.category.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Status filtering
+    if (selectedStatuses.length > 0) {
+      filtered = filtered.filter((agent) =>
+        selectedStatuses.includes(agent.status)
+      );
+    }
+
+    // Category filtering
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter((agent) =>
+        selectedCategories.includes(agent.category)
+      );
+    }
+
+    // Pricing filtering
+    if (selectedPricing) {
+      filtered = filtered.filter(
+        (agent) => agent.pricingModel === selectedPricing
+      );
+    }
+
+    // Sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "category":
+          return a.category.localeCompare(b.category);
+        case "status":
+          return a.status.localeCompare(b.status);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [
+    initialAgents,
+    searchTerm,
+    selectedStatuses,
+    selectedCategories,
+    selectedPricing,
+    sortBy,
+    activeTab,
+  ]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-      {/* Filters Sidebar */}
-      <div className="lg:col-span-1">
-        <div className="sticky top-24 space-y-6">
-          <AgentSearch />
-          <AgentFilters />
+    <div className="space-y-8">
+      {/* Quick Filter Tabs */}
+      <FilterTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        agents={initialAgents}
+      />
+
+      {/* Search and Controls */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex-1">
+          <AgentSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        </div>
+        <div className="flex gap-4">
+          <AgentSort sortBy={sortBy} onSortChange={setSortBy} />
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="lg:col-span-3">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-900">
-              {hasActiveFilters ? 'Filtered Results' : 'All Agents'}
-            </h2>
-            <p className="text-gray-600 mt-1">
-              {filteredAgents.length} {filteredAgents.length === 1 ? 'agent' : 'agents'} found
-            </p>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Filters Sidebar */}
+        <div className="lg:col-span-1">
+          <AgentFilters
+            agents={initialAgents}
+            selectedStatuses={selectedStatuses}
+            selectedCategories={selectedCategories}
+            selectedPricing={selectedPricing}
+            onStatusesChange={setSelectedStatuses}
+            onCategoriesChange={setSelectedCategories}
+            onPricingChange={setSelectedPricing}
+          />
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-xl border p-6 animate-pulse">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="h-3 bg-gray-200 rounded"></div>
-                  <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-                  <div className="h-3 bg-gray-200 rounded w-4/6"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filteredAgents.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-12"
-          >
-            <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No agents found</h3>
-            <p className="text-gray-600">
-              Try adjusting your search or filter criteria to find more agents.
+        {/* Agent Grid */}
+        <div className="lg:col-span-3">
+          <div className="mb-6 flex items-center justify-between">
+            <p className="text-sm text-slate-600">
+              Showing {filteredAndSortedAgents.length} of {initialAgents.length}{" "}
+              agents
             </p>
-          </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredAgents.map((agent, index) => (
-              <AgentCard key={agent.id} agent={agent} index={index} />
-            ))}
           </div>
-        )}
+
+          <AnimatePresence mode="wait">
+            {filteredAndSortedAgents.length === 0 ? (
+              <EmptyState
+                searchTerm={searchTerm}
+                onClearFilters={() => {
+                  setSearchTerm("");
+                  setSelectedStatuses([]);
+                  setSelectedCategories([]);
+                  setSelectedPricing("");
+                  setActiveTab("all");
+                }}
+              />
+            ) : (
+              <motion.div
+                key="agent-grid"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+              >
+                {filteredAndSortedAgents.map((agent, index) => (
+                  <AgentCard key={agent.id} agent={agent} index={index} />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

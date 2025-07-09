@@ -1,22 +1,15 @@
-export interface Agent {
+// app/types/agent.ts
+export interface Agents {
   id: string;
   name: string;
   description: string;
-  status: 'Active' | 'Beta' | 'Archived';
   category: string;
-  pricingModel: 'Free Tier' | 'Subscription' | 'Per-Use';
-}
-
-export interface FilterState {
-  search: string;
-  statuses: string[];
-  categories: string[];
+  status: "Active" | "Beta" | "Archived";
   pricingModel: string;
-}
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  image?: string;
+  createdAt: string;
+  updatedAt: string;
+  rating?: number;
+  userCount?: number;
+  features?: string[];
+  tags?: string[];
 }
