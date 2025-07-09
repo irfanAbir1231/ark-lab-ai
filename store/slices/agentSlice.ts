@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Agent } from "../../types/agent";
+import { Agents as Agent } from "../../types/agent";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 

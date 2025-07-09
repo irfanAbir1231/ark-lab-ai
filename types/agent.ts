@@ -13,3 +13,10 @@ export interface Agents {
   features?: string[];
   tags?: string[];
 }
+
+export interface User {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
